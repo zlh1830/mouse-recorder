@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "mouse-recorder"
+version = "0.1.0"
+description = "鼠标录制软件 — 用于录制并回放鼠标操作的示例 Python 项目"
+authors = ["<your name> <you@example.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "mouse_recorder", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pynput = "^1.7.6"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.0.0"
+black = "^24.0.0"
+isort = "^5.12.0"
+ruff = "^0.15.0"
+pre-commit = "^3.4.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
