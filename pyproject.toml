@@ -7,6 +7,9 @@ license = "MIT"
 readme = "README.md"
 packages = [{include = "mouse_recorder", from = "src"}]
 
+[tool.poetry.scripts]
+mouse-recorder = "mouse_recorder.cli:main"
+
 [tool.poetry.dependencies]
 python = "^3.10"
 pynput = "^1.7.6"
