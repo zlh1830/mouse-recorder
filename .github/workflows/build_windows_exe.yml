@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -23,6 +25,22 @@ jobs:
 
       - name: Install build dependencies
         run: python -m pip install pyinstaller pynput
+
+      - name: Generate release notes (on tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        id: gen_notes
+        shell: bash
+        run: |
+          echo "GITHUB_REF=$GITHUB_REF"
+          TAG=${GITHUB_REF#refs/tags/}
+          git fetch --tags
+          PREV_TAG=$(git describe --tags --abbrev=0 "${TAG}^" 2>/dev/null || true)
+          if [ -z "$PREV_TAG" ]; then
+            NOTES=$(git log --pretty=format:"- %s" --no-merges -n 50)
+          else
+            NOTES=$(git log --pretty=format:"- %s" --no-merges ${PREV_TAG}...${TAG})
+          fi
+          echo "::set-output name=notes::$NOTES"
 
       - name: Build EXE
         run: |
@@ -47,6 +65,7 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           release_name: Release ${{ github.ref_name }}
+          body: ${{ steps.gen_notes.outputs.notes }}
           draft: false
           prerelease: false
 

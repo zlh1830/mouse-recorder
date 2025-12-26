@@ -94,6 +94,18 @@ git push origin v0.1.0
 
 - 请先运行 `poetry install`，然后运行 `poetry run pytest` 来验证修改不会破坏现有行为。
 
+- 推荐在本地安装并启用 `pre-commit`，以在提交前自动修复/检查格式问题：
+
+  PowerShell (Windows):
+  ```powershell
+  .\.\scripts\install_precommit.ps1
+  ```
+
+  Bash (Linux/macOS):
+  ```bash
+  ./scripts/install_precommit.sh
+  ```
+
 ## 许可
 
 本项目使用 MIT 许可证.
