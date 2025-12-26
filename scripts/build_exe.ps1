@@ -6,18 +6,30 @@ Usage:
 #>
 param(
   [string]$Name = "mouse-recorder",
-  [string]$Spec = "src/mouse_recorder/cli.py"
+  [string]$Spec = "src/mouse_recorder/cli.py",
+  [switch]$UseSpec
 )
 
 # Change to project root (script location is scripts/)
 Set-Location -Path (Join-Path $PSScriptRoot "..")
 
-if (Get-Command poetry -ErrorAction SilentlyContinue) {
-  Write-Output "Using Poetry environment to run PyInstaller..."
-  poetry run pyinstaller --onefile --name $Name $Spec
+$specFile = Join-Path (Get-Location) "mouse-recorder.spec"
+
+if ($UseSpec -or (Test-Path $specFile)) {
+  Write-Output "Using spec file to build..."
+  if (Get-Command poetry -ErrorAction SilentlyContinue) {
+    poetry run pyinstaller mouse-recorder.spec
+  } else {
+    pyinstaller mouse-recorder.spec
+  }
 } else {
-  Write-Output "Running PyInstaller directly (make sure pyinstaller is installed)..."
-  pyinstaller --onefile --name $Name $Spec
+  if (Get-Command poetry -ErrorAction SilentlyContinue) {
+    Write-Output "Using Poetry environment to run PyInstaller..."
+    poetry run pyinstaller --onefile --name $Name $Spec
+  } else {
+    Write-Output "Running PyInstaller directly (make sure pyinstaller is installed)..."
+    pyinstaller --onefile --name $Name $Spec
+  }
 }
 
 Write-Output "Build finished. Artifact should be in the 'dist' directory."

@@ -59,11 +59,13 @@ python scripts/run_record.py --seconds 5 --out mouse_events.json
 .\.\scripts\build_exe.ps1
 # 或者指定名称
 .\.\scripts\build_exe.ps1 -Name mouse-recorder
+# 使用项目内的 spec 文件：
+.\.\scripts\build_exe.ps1 -UseSpec
 ```
 
 脚本会优先使用 `poetry run pyinstaller`（如果你安装并使用 Poetry），否则将直接调用系统上的 `pyinstaller`。生成的 exe 位于 `dist\mouse-recorder.exe`。
 
-2. 手动使用 PyInstaller：
+2. 手动使用 PyInstaller 或使用 CI（在 tag 推送时自动发布）：
 
 ```bash
 # 安装 pyinstaller
@@ -73,7 +75,20 @@ poetry run pip install pyinstaller  # 或 python -m pip install pyinstaller
 poetry run pyinstaller --onefile --name mouse-recorder src/mouse_recorder/cli.py
 ```
 
-注意：Windows 的防病毒软件有时会误报打包后的可执行文件；如需在 CI 上自动打包，请参考提供的 GitHub Actions workflow（`.github/workflows/build_windows_exe.yml`），该 workflow 会在 `windows-latest` runner 上构建 exe 并把 `dist/mouse-recorder.exe` 上传为 workflow artifact。
+### 自动发布到 GitHub Releases（可选）
+
+在仓库创建一个 Git tag（语义化版本格式，如 `v0.1.0`）并推送到远程：
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+触发器会在 `windows-latest` runner 上构建 EXE 并把可执行文件上传为 release asset（见 `.github/workflows/build_windows_exe.yml`）。
+
+> 注意：如果你希望自动发布到 GitHub Releases，请确保在推送 tag 时使用受信任的 GitHub Token（仓库默认的 `GITHUB_TOKEN` 一般足够）。
+
+注意：Windows 的防病毒软件有时会误报打包后的可执行文件；如需在 CI 上自动打包，请参考提供的 GitHub Actions workflow（`.github/workflows/build_windows_exe.yml`），该 workflow 会在 `windows-latest` runner 上构建 exe 并把 `dist/mouse-recorder.exe` 上传为 workflow artifact/发布资产。
 
 ## 贡献
 

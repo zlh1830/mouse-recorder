@@ -3,6 +3,7 @@ name: Build Windows EXE
 on:
   push:
     branches: [ main ]
+    tags: [ 'v*' ]
   workflow_dispatch:
 
 jobs:
@@ -24,10 +25,38 @@ jobs:
         run: python -m pip install pyinstaller pynput
 
       - name: Build EXE
-        run: pyinstaller --onefile --name mouse-recorder src/mouse_recorder/cli.py
+        run: |
+          if (Test-Path "mouse-recorder.spec") {
+            pyinstaller mouse-recorder.spec
+          } else {
+            pyinstaller --onefile --name mouse-recorder src/mouse_recorder/cli.py
+          }
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: mouse-recorder-windows
           path: dist/mouse-recorder.exe
+
+      - name: Create GitHub Release (on tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        id: create_rel
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+
+      - name: Upload EXE to Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_rel.outputs.upload_url }}
+          asset_path: dist/mouse-recorder.exe
+          asset_name: mouse-recorder-${{ github.ref_name }}.exe
+          asset_content_type: application/octet-stream
