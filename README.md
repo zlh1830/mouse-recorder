@@ -46,6 +46,35 @@ pip install -r requirements.txt  # 若需要，可先生成 requirements.txt
 python scripts/run_record.py --seconds 5 --out mouse_events.json
 ```
 
+---
+
+## 打包为 Windows 可执行文件（EXE）
+
+推荐使用 PyInstaller 来生成单文件的 Windows 可执行程序。下面有两种方法：
+
+1. 使用附带的 PowerShell 脚本（推荐在 Windows 上运行）：
+
+```powershell
+# 在项目根目录下运行
+.\.\scripts\build_exe.ps1
+# 或者指定名称
+.\.\scripts\build_exe.ps1 -Name mouse-recorder
+```
+
+脚本会优先使用 `poetry run pyinstaller`（如果你安装并使用 Poetry），否则将直接调用系统上的 `pyinstaller`。生成的 exe 位于 `dist\mouse-recorder.exe`。
+
+2. 手动使用 PyInstaller：
+
+```bash
+# 安装 pyinstaller
+poetry run pip install pyinstaller  # 或 python -m pip install pyinstaller
+
+# 直接构建
+poetry run pyinstaller --onefile --name mouse-recorder src/mouse_recorder/cli.py
+```
+
+注意：Windows 的防病毒软件有时会误报打包后的可执行文件；如需在 CI 上自动打包，请参考提供的 GitHub Actions workflow（`.github/workflows/build_windows_exe.yml`），该 workflow 会在 `windows-latest` runner 上构建 exe 并把 `dist/mouse-recorder.exe` 上传为 workflow artifact。
+
 ## 贡献
 
 - 请先运行 `poetry install`，然后运行 `poetry run pytest` 来验证修改不会破坏现有行为。
